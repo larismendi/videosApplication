@@ -1,35 +1,26 @@
 <?php
+
 namespace AppBundle\Services;
 
-use Doctrine\ORM\EntityManager;
 use Firebase\JWT\JWT;
 
-class JwtAuth {
+class JwtAuth
+{
 	private $manager;
+	private $key;
 
-	/**
-	 * @return mixed
-	 */
-	public function getManager()
-	{
-		return $this->manager;
-	}
-
-	/**
-	 * @param mixed $manager
-	 */
-	public function setManager($manager)
+	public function __construct($manager)
 	{
 		$this->manager = $manager;
+		$this->key = 'secret-key';
 	}
-
 
 	/**
 	 * @return mixed
 	 */
-	public function signup($email, $password, $gatHash = NULL)
+	public function signup($email, $password, $getHash = NULL)
 	{
-		$key = "secret-key";
+		$key = $this->key;
 		$user = $this->manager->getRepository('BackendBundle:User')->findOneBy(
 			array(
 				"email" => $email,
@@ -37,18 +28,65 @@ class JwtAuth {
 			)
 		);
 
-		var_dump($user);die;
-
 		$signup = false;
-		if(is_object($user)){
+		if (is_object($user)) {
 			$signup = true;
 		}
 
-		if($signup == true){
-			echo "Login success !!";
-		}else{
+		if ($signup == true) {
+			$token = array(
+				"sub" => $user->getId(),
+				"email" => $user->getEmail(),
+				"name" => $user->getName(),
+				"surname" => $user->getSurname(),
+				"image" => $user->getImage(),
+				"roles" => $user->getRoles(),
+				"iat" => time(),
+				"exp" => time() + (7 * 24 * 60 * 60)
+			);
+
+			$jwt = JWT::encode($token, $key, 'HS256');
+			$decoded = JWT::decode($jwt, $key, array('HS256'));
+
+			if ($getHash != null) {
+				return $jwt;
+			} else {
+				return $decoded;
+			}
+
+			return array("status" => "success", "data" => "Login success !!");
+		} else {
 			return array("status" => "error", "data" => "Login failed !!");
 		}
+
 		return $this->manager;
+	}
+
+	public function checkToken($jwt, $getIdentity = false)
+	{
+		$key = $this->key;
+		$auth = false;
+
+		try {
+
+			$decoded = JWT::decode($jwt, $key, array('HS256'));
+
+		} catch (\UnexpectedValueException $e) {
+			/*$auth = false;*/
+		} catch (\DomainException $e) {
+			/*$auth = false;*/
+		}
+
+		if (isset($decoded->sub)) {
+			$auth = true;
+		} else {
+			$auth = false;
+		}
+
+		if ($getIdentity == true) {
+			return $decoded;
+		} else {
+			return $auth;
+		}
 	}
 }
