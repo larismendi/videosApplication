@@ -1,0 +1,29 @@
+video_new:
+    path: /new
+    defaults: { _controller: "AppBundle:Video:new" }
+    methods: POST
+
+video_edit:
+    path: /edit/{id}
+    defaults: { _controller: "AppBundle:Video:edit", id: null }
+    methods: POST
+
+video_uploadImage:
+    path: /uploadImage/{id}
+    defaults: { _controller: "AppBundle:Video:upload", id: null }
+    methods: POST
+
+video_uploadVideo:
+    path: /uploadVideo/{id}
+    defaults: { _controller: "AppBundle:Video:upload", id: null }
+    methods: POST
+
+video_list:
+    path: /list
+    defaults: { _controller: "AppBundle:Video:videos" }
+    methods: GET
+
+video_lastVideos:
+    path: /lastVideos
+    defaults: { _controller: "AppBundle:Video:lastVideos" }
+    methods: GET

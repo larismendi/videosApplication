@@ -8,7 +8,7 @@ default_login:
     defaults: { _controller: "AppBundle:Default:login" }
     methods: POST
 
-default_test:
-    path: /test
-    defaults: { _controller: "AppBundle:Default:test" }
+default_validToken:
+    path: /validToken
+    defaults: { _controller: "AppBundle:Default:validToken" }
     methods: POST

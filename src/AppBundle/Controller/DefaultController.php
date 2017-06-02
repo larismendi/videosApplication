@@ -36,11 +36,14 @@ class DefaultController extends Controller
 			$emailConstraint->message = "This email is not valid!!";
 			$validate_email = $this->get("validator")->validate($email, $emailConstraint);
 
+			// password encrypted
+			$pwd = hash('sha256', $password);
+
 			if (count($validate_email)==0 && $password != null) {
 				if($getHash == null){
-					$signup = $jwt_auth->signup($email, $password);
+					$signup = $jwt_auth->signup($email, $pwd);
 				} else {
-					$signup = $jwt_auth->signup($email, $password, true);
+					$signup = $jwt_auth->signup($email, $pwd, true);
 				}
 				return new JsonResponse($signup);
 			} else {
@@ -55,20 +58,13 @@ class DefaultController extends Controller
 		die;
 	}
 
-	public function testAction(Request $request)
+	public function validTokenAction(Request $request)
 	{
 		$helpers = $this->get("app.helpers");
 
-		$hash = $request->get("authorization", null);
+		$hash = $request->get("Authorization", null);
 		$check = $helpers->authCheck($hash, true);
 
-		/*$check = $jwt_auth->checkToken($hash);*/
-
-		var_dump($check);
-		die;
-		/*$em = $this->getDoctrine()->getManager();
-		$users = $em->getRepository('BackendBundle:User')->findAll();*/
-
-		return $helpers->json($users);
+		return new JsonResponse($check);
 	}
 }
